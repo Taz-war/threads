@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input"
 import * as z from 'zod'
 import Image from 'next/image';
 import { Textarea } from '../ui/textarea';
+import { isBase64Image } from '@/lib/utils';
+import { UploadThing } from '@/lib/uploadthing';
 
 type Props = {
   user: {
@@ -30,15 +32,15 @@ type Props = {
   btnTitle: string
 }
 
-const AccountProfile = ({ user, btnTitle}: Props) => {
-  const [files,setFiles] = useState<File[]>([])
+const AccountProfile = ({ user, btnTitle }: Props) => {
+  const [files, setFiles] = useState<File[]>([])
   const form = useForm({
     resolver: zodResolver(UserValidation),
     defaultValues: {
       profile_photo: user?.image || '',
-      name: user?.name ||'',
-      username: user?.username ||'',
-      bio: user?.bio ||''
+      name: user?.name || '',
+      username: user?.username || '',
+      bio: user?.bio || ''
     }
   })
 
@@ -47,19 +49,24 @@ const AccountProfile = ({ user, btnTitle}: Props) => {
 
     const fileReader = new FileReader()
 
-    if (e.target.files && e.target.files.length>0) {
+    if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]
       setFiles(Array.from(e.target.files))
       if (!file.type.includes('image')) return;
-      fileReader.onload = async (event)=>{
-          const imageDataUrl = event.target?.result?.toString() || '';
-          fieldChange(imageDataUrl) 
+      fileReader.onload = async (event) => {
+        const imageDataUrl = event.target?.result?.toString() || '';
+        fieldChange(imageDataUrl)
       }
       fileReader.readAsDataURL(file)
     }
   }
 
   function onSubmit(values: z.infer<typeof UserValidation>) {
+    const blob = values.profile_photo
+    const hasImageChanged = isBase64Image(blob)
+    if (hasImageChanged) {
+      const imgRes = 
+    }
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
@@ -141,7 +148,7 @@ const AccountProfile = ({ user, btnTitle}: Props) => {
               <FormControl>
                 <Input
                   type='text'
-                  placeholder="Enter your name"
+                  placeholder="Enter your username"
                   className='account-form_input no-focus'
                   {...field}
                 />
@@ -162,8 +169,8 @@ const AccountProfile = ({ user, btnTitle}: Props) => {
               <FormControl>
 
                 <Textarea
-                  rows={10}
-                  placeholder="Enter your name"
+                  rows={7}
+                  placeholder="Bio"
                   className='account-form_input no-focus'
                   {...field}
                 />
