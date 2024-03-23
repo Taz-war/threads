@@ -4,25 +4,25 @@ import User from "../models/user.model";
 import { connectToDB } from "../mongoose"
 
 interface Params {
-    userId: string,
-    username: string,
-    name: string,
-    bio: string,
-    image: string,
-    path: string
+    userId: string;
+    username: string;
+    name: string;
+    bio: string;
+    image: string;
+    path: string;
 }
 
-export const updateUser = async ({
+export async function updateUser({
     userId,
-    username,
-    name,
     bio,
+    name,
+    path,
+    username,
     image,
-    path
-}:Params) => {
-    connectToDB();
-
+}: Params): Promise<void> {
     try {
+        connectToDB();
+
         await User.findOneAndUpdate(
             { id: userId },
             {
@@ -33,12 +33,12 @@ export const updateUser = async ({
                 onboarded: true,
             },
             { upsert: true }
-        )
-    
-        if (path === '/profile/edit') {
-            revalidatePath(path)
+        );
+
+        if (path === "/profile/edit") {
+            revalidatePath(path);
         }
-    } catch (error:any) {
-        throw new Error(`Failed to create/ update user: ${error.message}`)
+    } catch (error: any) {
+        throw new Error(`Failed to create/update user: ${error.message}`);
     }
 }
